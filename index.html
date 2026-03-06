@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ravel Robaina — English Classes</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --dark:   #1E1714;
+  --cream:  #FFF8ED;
+  --muted:  rgba(255,248,237,0.45);
+  --line:   rgba(255,248,237,0.12);
+  --accent: #C8A96E;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--dark);
+  color: var(--cream);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CURSOR ── */
+.cur { position:fixed; z-index:9999; width:8px; height:8px; background:var(--cream); border-radius:50%; pointer-events:none; transform:translate(-50%,-50%); transition:width .25s,height .25s; mix-blend-mode:difference; }
+.cur-ring { position:fixed; z-index:9998; width:32px; height:32px; border:1px solid rgba(255,248,237,.4); border-radius:50%; pointer-events:none; transform:translate(-50%,-50%); transition:left .12s ease,top .12s ease,width .25s,height .25s; }
+.cur.big { width:20px; height:20px; }
+.cur-ring.big { width:56px; height:56px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  display: flex; justify-content:space-between; align-items:center;
+  padding: 24px 48px;
+  background: rgba(30,23,20,.75);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-weight: 400;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--cream);
+}
+.lang-wrap { display:flex; gap:6px; }
+.lb {
+  padding: 5px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.68rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); background: transparent; cursor:none;
+  transition: all .2s;
+}
+.lb:hover { border-color: var(--accent); color:var(--accent); }
+.lb.active { background:var(--cream); color:var(--dark); border-color:var(--cream); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction:column; justify-content:flex-end;
+  padding: 120px 48px 64px;
+  border-bottom: 1px solid var(--line);
+  position: relative; overflow: hidden;
+}
+
+/* Decorative large letter */
+.hero-bg-letter {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(280px, 40vw, 480px);
+  font-weight: 300; font-style: italic;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,248,237,0.04);
+  pointer-events: none; user-select:none;
+  line-height: 1; white-space: nowrap;
+}
+
+.hero-top {
+  display: flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom: auto; padding-top: 16px;
+}
+.hero-tag {
+  display: flex; align-items:center; gap:10px;
+  font-size: 0.7rem; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted);
+}
+.tag-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); animation: blink 2s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+.hero-year { font-size:0.7rem; letter-spacing:0.15em; color:var(--muted); }
+
+.hero-main { margin-top: 48px; }
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(4rem, 11vw, 9rem);
+  font-weight: 300; line-height: 0.9;
+  letter-spacing: -0.01em;
+  animation: fadeUp 1.2s cubic-bezier(0.16,1,.3,1) both;
+}
+.hero-title em { font-style:italic; color:var(--accent); }
+.hero-title .ghost {
+  -webkit-text-stroke: 1px rgba(255,248,237,.18);
+  color: transparent;
+}
+
+.hero-bottom {
+  display: flex; justify-content:space-between; align-items:flex-end;
+  margin-top: 64px;
+  animation: fadeUp 1.2s cubic-bezier(0.16,1,.3,1) .2s both;
+}
+.hero-sub {
+  max-width: 400px;
+  font-size: clamp(.85rem, 1.4vw, 1rem);
+  line-height: 1.75; font-weight: 300;
+  color: var(--muted);
+}
+.hero-scroll {
+  display:flex; align-items:center; gap:12px;
+  font-size: 0.68rem; letter-spacing:.2em; text-transform:uppercase;
+  color: var(--muted);
+}
+.scroll-bar { width:1px; height:48px; background:var(--line); position:relative; overflow:hidden; }
+.scroll-bar::after {
+  content:''; position:absolute; top:-100%; left:0; width:100%; height:100%;
+  background: var(--accent);
+  animation: scrollDown 2s ease infinite;
+}
+@keyframes scrollDown { 0%{top:-100%;} 60%{top:100%;} 100%{top:100%;} }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(50px);} to{opacity:1;transform:translateY(0);} }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border-bottom: 1px solid var(--line);
+  animation: fadeUp 1s ease .4s both;
+}
+.stat-cell {
+  padding: 36px 48px;
+  border-right: 1px solid var(--line);
+  transition: background .3s;
+}
+.stat-cell:last-child { border-right:none; }
+.stat-cell:hover { background:rgba(255,248,237,.03); }
+.stat-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem,4vw,3rem); font-weight:300;
+  color: var(--cream); margin-bottom: 4px;
+}
+.stat-l { font-size:.68rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+
+/* ── SECTION COMMON ── */
+.sec-label { font-size:.65rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+
+/* ── METHOD ── */
+.method {
+  display:grid; grid-template-columns:1fr 1fr;
+  border-bottom: 1px solid var(--line);
+  animation: fadeUp 1s ease .3s both;
+}
+.method-left { padding:80px 48px; border-right:1px solid var(--line); }
+.method-right { padding:80px 48px; display:flex; flex-direction:column; justify-content:flex-end; }
+.method-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.2rem,4.5vw,3.8rem); font-weight:300; line-height:1.05;
+  margin-bottom: 40px;
+}
+.method-title em { font-style:italic; color:var(--accent); }
+.science-note {
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line); border-radius:999px;
+  padding:8px 18px; font-size:.7rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted);
+  margin-bottom:16px;
+}
+.method-body { font-size:.9rem; line-height:1.8; color:var(--muted); font-weight:300; }
+
+/* Pillars */
+.pillars { display:grid; grid-template-columns:repeat(5,1fr); border-top:1px solid var(--line); }
+.pillar {
+  padding:36px 28px 40px;
+  border-right:1px solid var(--line);
+  transition:background .3s;
+  position:relative;
+}
+.pillar:last-child { border-right:none; }
+.pillar::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:var(--accent); transform:scaleX(0); transform-origin:left;
+  transition:transform .5s cubic-bezier(.16,1,.3,1);
+}
+.pillar:hover::after { transform:scaleX(1); }
+.pillar:hover { background:rgba(255,248,237,.03); }
+.p-num { font-size:.6rem; letter-spacing:.2em; color:var(--accent); margin-bottom:20px; }
+.p-icon { font-size:1.5rem; margin-bottom:16px; display:block; }
+.p-name { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:400; margin-bottom:8px; }
+.p-desc { font-size:.75rem; line-height:1.65; color:var(--muted); }
+
+/* ── BENEFITS ── */
+.benefits { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid var(--line); }
+.ben {
+  padding:56px 48px;
+  border-right:1px solid var(--line);
+  transition:background .3s;
+}
+.ben:last-child { border-right:none; }
+.ben:hover { background:rgba(255,248,237,.03); }
+.ben-icon { font-size:1.6rem; margin-bottom:20px; display:block; }
+.ben-title { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:300; margin-bottom:10px; }
+.ben-body { font-size:.82rem; line-height:1.75; color:var(--muted); }
+
+/* ── FORM ── */
+.form-wrap {
+  display:grid; grid-template-columns:1fr 1fr;
+  border-bottom:1px solid var(--line);
+}
+.form-left { padding:80px 48px; border-right:1px solid var(--line); display:flex; flex-direction:column; justify-content:center; }
+.form-right { padding:80px 48px; display:flex; flex-direction:column; justify-content:center; }
+.form-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3.5rem); font-weight:300; line-height:1.05;
+  margin-bottom:20px;
+}
+.form-title em { font-style:italic; color:var(--accent); }
+.form-body { font-size:.88rem; line-height:1.8; color:var(--muted); margin-bottom:32px; font-weight:300; }
+.free-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--accent); border-radius:999px;
+  padding:8px 20px; font-size:.7rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--accent);
+}
+
+/* fields */
+.fg { margin-bottom:20px; }
+.fl { display:block; font-size:.62rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.fi, .ft {
+  width:100%; background:rgba(255,248,237,.05);
+  border:1px solid var(--line); border-radius:8px;
+  padding:14px 16px; font-family:'Jost',sans-serif;
+  font-size:.9rem; color:var(--cream); outline:none;
+  transition:border-color .25s,background .25s;
+}
+.fi::placeholder,.ft::placeholder { color:rgba(255,248,237,.22); }
+.fi:focus,.ft:focus { border-color:var(--accent); background:rgba(200,169,110,.07); }
+.ft { resize:none; height:88px; }
+
+.pills-row { display:flex; gap:8px; flex-wrap:wrap; }
+.pill-item { cursor:none; }
+.pill-item input[type=radio] { display:none; }
+.pill-lbl {
+  display:block; padding:8px 16px;
+  border:1px solid var(--line); border-radius:999px;
+  font-size:.72rem; font-weight:500; letter-spacing:.06em;
+  color:var(--muted); cursor:none;
+  transition:all .2s; user-select:none;
+}
+.pill-item input:checked + .pill-lbl {
+  background:var(--cream); color:var(--dark); border-color:var(--cream);
+}
+
+.cta {
+  width:100%; margin-top:8px; padding:17px;
+  background:var(--accent); color:var(--dark);
+  border:none; border-radius:8px;
+  font-family:'Jost',sans-serif; font-size:.82rem; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; cursor:none;
+  transition:background .25s,transform .2s,box-shadow .2s;
+  box-shadow:0 8px 28px rgba(200,169,110,.22);
+}
+.cta:hover { background:#d4b87a; transform:translateY(-2px); box-shadow:0 14px 36px rgba(200,169,110,.32); }
+.cta:active { transform:translateY(0); }
+.cta:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+.fnote { font-size:.65rem; color:var(--muted); text-align:center; margin-top:12px; letter-spacing:.05em; }
+
+/* success */
+.suc {
+  display:none; flex-direction:column; gap:16px;
+  padding:40px; background:rgba(255,248,237,.04);
+  border:1px solid var(--line); border-radius:12px;
+}
+.suc-icon { font-size:1.8rem; }
+.suc h3 { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:300; }
+.suc p { font-size:.85rem; line-height:1.75; color:var(--muted); }
+.suc-gold { color:var(--accent)!important; }
+
+/* ── FOOTER ── */
+footer {
+  display:grid; grid-template-columns:1fr 1fr;
+}
+.fl-left { padding:40px 48px; border-right:1px solid var(--line); }
+.fl-right { padding:40px 48px; display:flex; align-items:center; justify-content:flex-end; }
+.f-brand { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:300; letter-spacing:.1em; margin-bottom:4px; }
+.f-sub,.f-copy { font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+
+/* ── SHAKE ── */
+@keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  body{cursor:auto;}
+  .cur,.cur-ring{display:none;}
+  nav{padding:18px 24px;}
+  .hero{padding:100px 24px 48px;}
+  .hero-bottom{flex-direction:column;gap:32px;align-items:flex-start;}
+  .stats-bar{grid-template-columns:1fr 1fr;}
+  .stat-cell{padding:28px 24px;}
+  .stat-cell:nth-child(2){border-right:none;}
+  .method,.form-wrap,footer{grid-template-columns:1fr;}
+  .method-left,.method-right,.form-left,.form-right,.fl-left,.fl-right{padding:48px 24px;border-right:none;}
+  .method-left,.form-left,.fl-left{border-bottom:1px solid var(--line);}
+  .fl-right{justify-content:flex-start;}
+  .pillars{grid-template-columns:1fr 1fr;}
+  .pillar{border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .pillar:nth-child(2n){border-right:none;}
+  .pillar:last-child{border-bottom:none;}
+  .benefits{grid-template-columns:1fr;}
+  .ben{border-right:none;border-bottom:1px solid var(--line);}
+  .ben:last-child{border-bottom:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="cur-ring"></div>
+
+<nav>
+  <div class="nav-brand">Ravel Robaina</div>
+  <div class="lang-wrap">
+    <button class="lb active" onclick="setLang('pt')" id="btn-pt">🇧🇷 PT</button>
+    <button class="lb" onclick="setLang('en')" id="btn-en">🇺🇸 EN</button>
+    <button class="lb" onclick="setLang('fr')" id="btn-fr">🇫🇷 FR</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-letter" id="t-bg-letter">E</div>
+  <div class="hero-top">
+    <div class="hero-tag"><span class="tag-dot"></span><span id="t-tag"></span></div>
+    <span class="hero-year">2026</span>
+  </div>
+  <div class="hero-main">
+    <h1 class="hero-title" id="t-h1"></h1>
+  </div>
+  <div class="hero-bottom">
+    <p class="hero-sub" id="t-sub"></p>
+    <div class="hero-scroll"><div class="scroll-bar"></div><span id="t-scroll"></span></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-cell"><div class="stat-n">5</div><div class="stat-l" id="t-s1"></div></div>
+  <div class="stat-cell"><div class="stat-n">3</div><div class="stat-l" id="t-s2"></div></div>
+  <div class="stat-cell"><div class="stat-n">100%</div><div class="stat-l" id="t-s3"></div></div>
+  <div class="stat-cell"><div class="stat-n" id="t-s4n"></div><div class="stat-l" id="t-s4"></div></div>
+</div>
+
+<!-- METHOD -->
+<section class="method">
+  <div class="method-left">
+    <p class="sec-label" id="t-m-idx"></p>
+    <h2 class="method-title" id="t-m-title"></h2>
+  </div>
+  <div class="method-right">
+    <div class="science-note">🔬 <span id="t-sci"></span></div>
+    <p class="method-body" id="t-m-body"></p>
+  </div>
+</section>
+<div class="pillars" id="pillars"></div>
+
+<!-- BENEFITS -->
+<section class="benefits" id="benefits"></section>
+
+<!-- FORM -->
+<section class="form-wrap">
+  <div class="form-left">
+    <p class="sec-label" id="t-f-idx"></p>
+    <h2 class="form-title" id="t-f-title"></h2>
+    <p class="form-body" id="t-f-body"></p>
+    <div class="free-badge" id="t-f-free"></div>
+  </div>
+  <div class="form-right">
+    <div id="form-area">
+      <div class="fg"><label class="fl" id="t-fn"></label><input class="fi" type="text" id="name"/></div>
+      <div class="fg"><label class="fl" id="t-fp"></label><input class="fi" type="tel" id="phone"/></div>
+      <div class="fg"><label class="fl" id="t-flv"></label><div class="pills-row" id="level-pills"></div></div>
+      <div class="fg"><label class="fl" id="t-fr"></label><textarea class="ft" id="reason"></textarea></div>
+      <button class="cta" id="cta-btn" onclick="submit()"></button>
+      <p class="fnote" id="t-note"></p>
+    </div>
+    <div class="suc" id="suc">
+      <div class="suc-icon">✦</div>
+      <h3 id="t-st"></h3>
+      <p id="t-sb"></p>
+      <p class="suc-gold" id="t-sa"></p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fl-left"><p class="f-brand">Ravel Robaina</p><p class="f-sub" id="t-fsub"></p></div>
+  <div class="fl-right"><p class="f-copy" id="t-fcopy"></p></div>
+</footer>
+
+<script>
+// Cursor
+const c = document.getElementById('cur'), r = document.getElementById('cur-ring');
+if(c){ document.addEventListener('mousemove',e=>{ c.style.left=e.clientX+'px'; c.style.top=e.clientY+'px'; setTimeout(()=>{ r.style.left=e.clientX+'px'; r.style.top=e.clientY+'px'; },90); }); document.querySelectorAll('button,input,textarea').forEach(el=>{ el.addEventListener('mouseenter',()=>{c.classList.add('big');r.classList.add('big');}); el.addEventListener('mouseleave',()=>{c.classList.remove('big');r.classList.remove('big');}); }); }
+
+const T = {
+  pt:{lang:'pt-BR',
+    bgLetter:'E', tag:'Vagas Abertas — Turmas 2026',
+    h1:'Fale<br>Inglês<br>com <em>Confiança</em>',
+    sub:'Um método baseado em ciência e experiência real — desenvolvido para levar você até a fluência, no seu ritmo.',
+    scroll:'Scroll',
+    s1:'Pilares do Método',s2:'Idiomas',s3:'Personalizado',s4n:'1ª',s4:'Primeira Aula',
+    mIdx:'01 — Metodologia',mTitle:'Como você<br>vai <em>aprender</em>',
+    sci:'Blended Learning',mBody:'Meu método une aulas ao vivo com prática autônoma fora da sala — o modelo validado cientificamente que desenvolve fluência, motivação e autonomia nos alunos.',
+    pillars:[{n:'01',i:'🗓️',name:'Organize',desc:'30 min por dia já transformam seu aprendizado.'},{n:'02',i:'👀',name:'Observe',desc:'Deduza o que está sendo dito antes de falar.'},{n:'03',i:'🎧',name:'Ouça',desc:'Filmes, músicas e rádio — absorva o ritmo do idioma.'},{n:'04',i:'📖',name:'Leia',desc:'Copie textos e letras. Vocabulário vem pela repetição.'},{n:'05',i:'🗣️',name:'Pratique',desc:'Treine com quem sabe mais e corrija antes de fixar.'}],
+    benefits:[{i:'🎯',t:'Personalizado',b:'Aulas adaptadas ao seu ritmo, nível e objetivo de vida.'},{i:'🧠',t:'Autonomia Real',b:'Você aprende dentro e fora da sala — o idioma entra na sua rotina.'},{i:'📱',t:'Flexível',b:'Online ou presencial, no horário que funciona pra você.'}],
+    fIdx:'02 — Inscrição',fTitle:'Reserve<br>Sua <em>Vaga</em>',fBody:'Preencha o formulário e entrarei em contato pelo WhatsApp para agendar sua primeira aula.',fFree:'✦ Agende sua primeira aula',
+    fn:'Seu Nome',fp:'Telefone / WhatsApp',flv:'Seu Nível',fr:'Por que quer aprender inglês?',
+    pn:'Ex: Maria Silva',pp:'Ex: (11) 99999-9999',pr:'Ex: Quero viajar, conseguir um emprego melhor...',
+    levels:['🌱 Iniciante','📖 Básico','🚀 Intermediário','⭐ Avançado'],lvs:['Iniciante','Básico','Intermediário','Avançado'],
+    cta:'Quero Aprender com o Método Ravel →',note:'🔒 Seus dados são privados e usados apenas para contato',
+    sending:'Enviando...',err:'⚠️ Erro. Tente novamente.',
+    st:'Você está na lista! ✦',sb:'Recebi suas informações e vou entrar em contato pelo WhatsApp em breve para agendar sua primeira aula.',sa:'Mal posso esperar para começar essa jornada com você.',
+    fsub:'English Classes — Método Ravel Robaina',fcopy:'© 2026 Ravel Robaina. Todos os direitos reservados.',
+  },
+  en:{lang:'en-US',
+    bgLetter:'E', tag:'Enrolling Now — 2026 Classes',
+    h1:'Speak<br>English<br>with <em>Confidence</em>',
+    sub:'A science-backed method built on real experience — designed to take you from your first word to fluency.',
+    scroll:'Scroll',
+    s1:'Method Pillars',s2:'Languages',s3:'Personalized',s4n:'1st',s4:'First Class',
+    mIdx:'01 — Methodology',mTitle:'How you<br>will <em>learn</em>',
+    sci:'Blended Learning',mBody:'My method combines live classes with autonomous practice outside the classroom — the scientifically validated model proven to develop fluency, motivation and learner autonomy.',
+    pillars:[{n:'01',i:'🗓️',name:'Organize',desc:'30 min a day already transforms your learning.'},{n:'02',i:'👀',name:'Observe',desc:'Deduce what is being said before you speak.'},{n:'03',i:'🎧',name:'Listen',desc:'Movies, music, radio — absorb the rhythm of the language.'},{n:'04',i:'📖',name:'Read',desc:'Copy texts and lyrics. Vocabulary comes through repetition.'},{n:'05',i:'🗣️',name:'Practice',desc:'Train with someone better and correct before habits form.'}],
+    benefits:[{i:'🎯',t:'Personalized',b:'Classes adapted to your pace, level and life goals.'},{i:'🧠',t:'Real Autonomy',b:'You learn inside and outside class — English becomes part of your daily life.'},{i:'📱',t:'Flexible',b:'Online or in-person, at a time that works for you.'}],
+    fIdx:'02 — Enrollment',fTitle:'Reserve<br>Your <em>Spot</em>',fBody:"Fill in the form and I'll reach out on WhatsApp to schedule your first class.",fFree:'✦ Schedule your first class',
+    fn:'Your Name',fp:'Phone / WhatsApp',flv:'Your Level',fr:'Why do you want to learn English?',
+    pn:'E.g. Maria Silva',pp:'E.g. (11) 99999-9999',pr:'E.g. I want to travel, get a better job...',
+    levels:['🌱 Beginner','📖 Elementary','🚀 Intermediate','⭐ Advanced'],lvs:['Beginner','Elementary','Intermediate','Advanced'],
+    cta:"I Want to Learn with Ravel's Method →",note:'🔒 Your info is private and only used to contact you',
+    sending:'Sending...',err:'⚠️ Error. Please try again.',
+    st:"You're on the list! ✦",sb:"I received your info and will reach out on WhatsApp very soon to schedule your first class.",sa:"Can't wait to start this journey with you.",
+    fsub:'English Classes — Ravel Robaina Method',fcopy:'© 2026 Ravel Robaina. All rights reserved.',
+  },
+  fr:{lang:'fr-FR',
+    bgLetter:'A', tag:'Inscriptions Ouvertes — 2026',
+    h1:"Parlez<br>l'Anglais<br>avec <em>Confiance</em>",
+    sub:"Une méthode fondée sur la science et l'expérience réelle — conçue pour vous emmener jusqu'à la fluidité.",
+    scroll:'Défiler',
+    s1:'Piliers de la Méthode',s2:'Langues',s3:'Personnalisé',s4n:'1er',s4:'Première Cours',
+    mIdx:'01 — Méthodologie',mTitle:'Comment vous<br><em>apprendrez</em>',
+    sci:'Blended Learning',mBody:"Ma méthode associe cours en direct et pratique autonome en dehors de la classe — le modèle validé scientifiquement qui améliore la fluidité et l'autonomie.",
+    pillars:[{n:'01',i:'🗓️',name:'Organisez',desc:"30 min par jour suffisent à transformer votre apprentissage."},{n:'02',i:'👀',name:'Observez',desc:"Déduisez ce qui est dit avant même de parler."},{n:'03',i:'🎧',name:'Écoutez',desc:"Films, musique, radio — absorbez le rythme de la langue."},{n:'04',i:'📖',name:'Lisez',desc:"Copiez textes et paroles. Le vocabulaire vient par répétition."},{n:'05',i:'🗣️',name:'Pratiquez',desc:"Entraînez-vous avec quelqu'un de meilleur et corrigez tôt."}],
+    benefits:[{i:'🎯',t:'Personnalisé',b:'Cours adaptés à votre rythme, niveau et objectifs de vie.'},{i:'🧠',t:'Autonomie Réelle',b:"Vous apprenez en classe et hors classe — l'anglais entre dans votre quotidien."},{i:'📱',t:'Flexible',b:'En ligne ou en présentiel, aux horaires qui vous conviennent.'}],
+    fIdx:'02 — Inscription',fTitle:'Réservez<br>Votre <em>Place</em>',fBody:'Remplissez le formulaire et je vous contacterai sur WhatsApp pour planifier votre premier cours.',fFree:'✦ Planifiez votre premier cours',
+    fn:'Votre Prénom',fp:'Téléphone / WhatsApp',flv:'Votre Niveau',fr:"Pourquoi voulez-vous apprendre l'anglais ?",
+    pn:'Ex : Maria Silva',pp:'Ex : +33 6 12 34 56 78',pr:'Ex : Je veux voyager, trouver un meilleur emploi...',
+    levels:['🌱 Débutant','📖 Élémentaire','🚀 Intermédiaire','⭐ Avancé'],lvs:['Débutant','Élémentaire','Intermédiaire','Avancé'],
+    cta:'Je Veux Apprendre avec la Méthode Ravel →',note:'🔒 Vos données sont privées et utilisées uniquement pour vous contacter',
+    sending:'Envoi...',err:"⚠️ Erreur. Veuillez réessayer.",
+    st:'Vous êtes sur la liste ! ✦',sb:"J'ai reçu vos informations et je vous contacterai sur WhatsApp très bientôt pour votre premier cours.",sa:'Hâte de commencer ce voyage avec vous.',
+    fsub:"Cours d'Anglais — Méthode Ravel Robaina",fcopy:'© 2026 Ravel Robaina. Tous droits réservés.',
+  }
+};
+
+let lang='pt';
+function setLang(l){
+  lang=l; const t=T[l];
+  document.documentElement.lang=t.lang;
+  ['pt','en','fr'].forEach(x=>document.getElementById('btn-'+x).classList.toggle('active',x===l));
+  document.getElementById('t-bg-letter').textContent=t.bgLetter;
+  document.getElementById('t-tag').textContent=t.tag;
+  document.getElementById('t-h1').innerHTML=t.h1;
+  document.getElementById('t-sub').textContent=t.sub;
+  document.getElementById('t-scroll').textContent=t.scroll;
+  document.getElementById('t-s1').textContent=t.s1;
+  document.getElementById('t-s2').textContent=t.s2;
+  document.getElementById('t-s3').textContent=t.s3;
+  document.getElementById('t-s4n').textContent=t.s4n;
+  document.getElementById('t-s4').textContent=t.s4;
+  document.getElementById('t-m-idx').textContent=t.mIdx;
+  document.getElementById('t-m-title').innerHTML=t.mTitle;
+  document.getElementById('t-sci').textContent=t.sci;
+  document.getElementById('t-m-body').textContent=t.mBody;
+  const pc=document.getElementById('pillars'); pc.innerHTML='';
+  t.pillars.forEach(p=>{ const d=document.createElement('div'); d.className='pillar'; d.innerHTML=`<p class="p-num">${p.n}</p><span class="p-icon">${p.i}</span><p class="p-name">${p.name}</p><p class="p-desc">${p.desc}</p>`; pc.appendChild(d); });
+  const bc=document.getElementById('benefits'); bc.innerHTML='';
+  t.benefits.forEach(b=>{ const d=document.createElement('div'); d.className='ben'; d.innerHTML=`<span class="ben-icon">${b.i}</span><p class="ben-title">${b.t}</p><p class="ben-body">${b.b}</p>`; bc.appendChild(d); });
+  document.getElementById('t-f-idx').textContent=t.fIdx;
+  document.getElementById('t-f-title').innerHTML=t.fTitle;
+  document.getElementById('t-f-body').textContent=t.fBody;
+  document.getElementById('t-f-free').textContent=t.fFree;
+  document.getElementById('t-fn').textContent=t.fn;
+  document.getElementById('name').placeholder=t.pn;
+  document.getElementById('t-fp').textContent=t.fp;
+  document.getElementById('phone').placeholder=t.pp;
+  document.getElementById('t-flv').textContent=t.flv;
+  document.getElementById('t-fr').textContent=t.fr;
+  document.getElementById('reason').placeholder=t.pr;
+  const lp=document.getElementById('level-pills'); lp.innerHTML='';
+  t.levels.forEach((lb,i)=>{ const el=document.createElement('label'); el.className='pill-item'; el.innerHTML=`<input type="radio" name="level" value="${t.lvs[i]}" ${i===0?'checked':''}><span class="pill-lbl">${lb}</span>`; lp.appendChild(el); });
+  const btn=document.getElementById('cta-btn');
+  if(!btn.disabled) btn.textContent=t.cta;
+  document.getElementById('t-note').textContent=t.note;
+  document.getElementById('t-st').textContent=t.st;
+  document.getElementById('t-sb').textContent=t.sb;
+  document.getElementById('t-sa').textContent=t.sa;
+  document.getElementById('t-fsub').textContent=t.fsub;
+  document.getElementById('t-fcopy').textContent=t.fcopy;
+}
+setLang('pt');
+
+async function submit(){
+  const name=document.getElementById('name').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const reason=document.getElementById('reason').value.trim();
+  const level=document.querySelector('input[name="level"]:checked')?.value||'';
+  const t=T[lang];
+  if(!name){shake('name');return;} if(!phone){shake('phone');return;} if(!reason){shake('reason');return;}
+  const btn=document.getElementById('cta-btn'); btn.textContent=t.sending; btn.disabled=true;
+  try{
+    const res=await fetch('https://formspree.io/f/xojkqkjd',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name,phone,level,reason,language:t.lang,_replyto:'ravel.robaina@hotmail.com',_subject:`🎓 Novo Aluno: ${name} [${t.lang}]`})});
+    if(res.ok){ document.getElementById('form-area').style.display='none'; document.getElementById('suc').style.display='flex'; }
+    else throw new Error();
+  }catch{ btn.textContent=t.err; btn.style.background='#555'; btn.disabled=false; }
+}
+function shake(id){
+  const el=document.getElementById(id); el.style.borderColor='var(--accent)';
+  el.style.animation='none'; el.offsetHeight; el.style.animation='shake .4s ease';
+  setTimeout(()=>{el.style.borderColor='';el.style.animation='';},600);
+}
+</script>
+</body>
+</html>
