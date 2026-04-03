@@ -381,21 +381,21 @@ footer{background:var(--bg);border-top:0.5px solid var(--border-light);padding:2
             <div class="form-row">
               <div class="form-group">
                 <label for="fname">Nome</label>
-                <input type="text" id="fname" placeholder="Seu nome" required>
+                <input type="text" id="fname" name="nome" placeholder="Seu nome" required>
               </div>
               <div class="form-group">
                 <label for="femail">E-mail</label>
-                <input type="email" id="femail" placeholder="seu@email.com" required>
+                <input type="email" id="femail" name="email" placeholder="seu@email.com" required>
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label for="fwhats">WhatsApp</label>
-                <input type="tel" id="fwhats" placeholder="(11) 99999-9999">
+                <input type="tel" id="fwhats" name="whatsapp" placeholder="(11) 99999-9999">
               </div>
               <div class="form-group">
                 <label for="flevel">Nível atual</label>
-                <select id="flevel">
+                <select id="flevel" name="nivel">
                   <option value="">Selecione...</option>
                   <option>Iniciante — quase do zero</option>
                   <option>Básico — entendo um pouco</option>
@@ -407,7 +407,7 @@ footer{background:var(--bg);border-top:0.5px solid var(--border-light);padding:2
             </div>
             <div class="form-group">
               <label for="fgoal">Qual é seu objetivo?</label>
-              <textarea id="fgoal" placeholder="Ex: Quero conseguir um emprego em empresa americana. Preciso melhorar minha comunicação em reuniões..."></textarea>
+              <textarea id="fgoal" name="objetivo" placeholder="Ex: Quero conseguir um emprego em empresa americana. Preciso melhorar minha comunicação em reuniões..."></textarea>
             </div>
             <button class="btn-primary form-cta" onclick="submitForm()">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -452,12 +452,42 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-function submitForm() {
+async function submitForm() {
   const name = document.getElementById('fname').value.trim();
   const email = document.getElementById('femail').value.trim();
   if (!name || !email) { alert('Por favor, preencha pelo menos seu nome e e-mail.'); return; }
-  document.getElementById('formContent').style.display = 'none';
-  document.getElementById('formSuccess').classList.add('visible');
+
+  const btn = document.querySelector('.form-cta');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  const data = {
+    nome: name,
+    email: email,
+    whatsapp: document.getElementById('fwhats').value,
+    nivel: document.getElementById('flevel').value,
+    objetivo: document.getElementById('fgoal').value
+  };
+
+  try {
+    const res = await fetch('https://formspree.io/f/xojkqkjd', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      document.getElementById('formContent').style.display = 'none';
+      document.getElementById('formSuccess').classList.add('visible');
+    } else {
+      alert('Erro ao enviar. Tente pelo WhatsApp.');
+      btn.textContent = 'Enviar mensagem';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Erro de conexão. Tente pelo WhatsApp.');
+    btn.textContent = 'Enviar mensagem';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
