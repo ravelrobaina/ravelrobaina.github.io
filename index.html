@@ -173,6 +173,7 @@ footer{background:var(--bg);border-top:0.5px solid var(--border-light);padding:2
   .form-row{grid-template-columns:1fr}
   section{padding:5rem 1.25rem}
   .photo-frame{margin:0 auto}
+  .planos-grid{grid-template-columns:1fr !important;max-width:440px !important}
 }
 
   /* TESTIMONIALS */
@@ -212,6 +213,7 @@ footer{background:var(--bg);border-top:0.5px solid var(--border-light);padding:2
     <li><a href="#about">Sobre</a></li>
     <li><a href="#for">Para quem</a></li>
     <li><a href="#testimonials">Depoimentos</a></li>
+    <li><a href="#planos">Planos</a></li>
     <li><a href="#contact" class="nav-cta">Agendar aula</a></li>
   </ul>
 </nav>
@@ -484,6 +486,227 @@ footer{background:var(--bg);border-top:0.5px solid var(--border-light);padding:2
     </div>
   </div>
 </section>
+
+<div class="divider"></div>
+
+<!-- ── SEÇÃO PLANOS ── -->
+<section id="planos" style="background:var(--bg);padding:7rem 2.5rem">
+  <div class="container">
+
+    <!-- Header -->
+    <div style="text-align:center;max-width:640px;margin:0 auto 4rem" class="fade-up">
+      <p class="section-label">Planos</p>
+      <h2 class="section-title">Escolha como você quer<br><em>evoluir no inglês</em></h2>
+      <p class="section-sub" style="margin:0 auto">
+        Do básico ao avançado — aprenda no seu ritmo, com acompanhamento real de um profissional multilíngue.
+      </p>
+    </div>
+
+    <!-- Cards grid -->
+    <div style="
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:1.25rem;
+      align-items:start;
+      max-width:1000px;
+      margin:0 auto;
+    " class="planos-grid">
+
+      <!-- ── CARD 1: WhatsApp ── (DESTAQUE) -->
+      <div class="fade-up" style="
+        background:var(--navy);
+        border-radius:var(--radius);
+        padding:2.5rem 2rem;
+        position:relative;
+        color:#fff;
+        grid-column:1 / 2;
+        box-shadow:0 12px 48px rgba(29,58,95,0.22);
+      ">
+        <!-- Badge popular -->
+        <div style="
+          position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+          background:var(--accent);color:#fff;
+          font-family:var(--sans);font-size:0.72rem;font-weight:700;
+          letter-spacing:0.1em;text-transform:uppercase;
+          padding:0.3rem 1rem;border-radius:100px;white-space:nowrap;
+        ">⚡ Mais acessível</div>
+
+        <p style="font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;opacity:0.7;margin-bottom:0.5rem">Inglês no WhatsApp</p>
+        <div style="display:flex;align-items:baseline;gap:0.3rem;margin-bottom:0.35rem">
+          <span style="font-family:var(--serif);font-size:3rem;font-weight:300;line-height:1;letter-spacing:-0.02em">R$99</span>
+          <span style="opacity:0.7;font-size:0.9rem">/mês</span>
+        </div>
+        <p style="font-size:0.8rem;opacity:0.6;margin-bottom:1.75rem">≈ R$3,30 por dia</p>
+
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.8rem;margin-bottom:2rem">
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem">
+            <span style="color:#7dd3ab;flex-shrink:0;margin-top:0.1rem">✓</span>
+            Lição diária no WhatsApp (7 dias/semana)
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem">
+            <span style="color:#7dd3ab;flex-shrink:0;margin-top:0.1rem">✓</span>
+            1 aula ao vivo por mês (30 min via Google Meet)
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem">
+            <span style="color:#7dd3ab;flex-shrink:0;margin-top:0.1rem">✓</span>
+            Texto · Gramática · Exercício · Vídeo · Site de estudo
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem">
+            <span style="color:#7dd3ab;flex-shrink:0;margin-top:0.1rem">✓</span>
+            Currículo A1–C1 · 30 tópicos em rotação
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem">
+            <span style="color:#7dd3ab;flex-shrink:0;margin-top:0.1rem">✓</span>
+            Acesso a grupo exclusivo de alunos
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;opacity:0.55">
+            <span style="flex-shrink:0;margin-top:0.1rem">–</span>
+            Aulas extras avulsas (não incluídas)
+          </li>
+        </ul>
+
+        <a href="LINK_HOTMART" target="_blank" style="
+          display:flex;align-items:center;justify-content:center;gap:0.5rem;
+          background:#fff;color:var(--navy);
+          font-family:var(--sans);font-size:0.9rem;font-weight:700;
+          padding:0.9rem 1.5rem;border-radius:100px;text-decoration:none;
+          transition:transform 0.15s,opacity 0.15s;
+          letter-spacing:0.01em;
+        " onmouseover="this.style.opacity='0.92';this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
+          Assinar por R$99/mês →
+        </a>
+        <p style="text-align:center;font-size:0.72rem;opacity:0.5;margin-top:0.75rem">Cancele a qualquer momento</p>
+      </div>
+
+      <!-- ── CARD 2: Plano Pro ── -->
+      <div class="fade-up" style="
+        background:var(--bg-card);
+        border:0.5px solid var(--border-light);
+        border-radius:var(--radius);
+        padding:2.5rem 2rem;
+      ">
+        <p style="font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:0.5rem">Pro</p>
+        <div style="display:flex;align-items:baseline;gap:0.3rem;margin-bottom:0.35rem">
+          <span style="font-family:var(--serif);font-size:2.6rem;font-weight:300;color:var(--text);line-height:1;letter-spacing:-0.02em">R$249</span>
+          <span style="color:var(--text-2);font-size:0.9rem">/mês</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-3);margin-bottom:1.75rem">Ideal para quem acelera</p>
+
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.8rem;margin-bottom:2rem">
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Tudo do plano WhatsApp
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            2 aulas ao vivo por mês (60 min cada)
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Trilha de estudo personalizada
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Feedback por áudio/texto nos exercícios
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Revisão de textos (e-mails, apresentações)
+          </li>
+        </ul>
+
+        <a href="#contact" style="
+          display:flex;align-items:center;justify-content:center;
+          background:var(--navy-dim);color:var(--navy);
+          font-family:var(--sans);font-size:0.9rem;font-weight:600;
+          padding:0.9rem 1.5rem;border-radius:100px;text-decoration:none;
+          transition:background 0.2s;letter-spacing:0.01em;
+        " onmouseover="this.style.background='#d4e0f0'"
+           onmouseout="this.style.background='var(--navy-dim)'">
+          Tenho interesse →
+        </a>
+      </div>
+
+      <!-- ── CARD 3: VIP ── -->
+      <div class="fade-up" style="
+        background:var(--bg-card);
+        border:0.5px solid var(--border-light);
+        border-radius:var(--radius);
+        padding:2.5rem 2rem;
+      ">
+        <p style="font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-2);margin-bottom:0.5rem">VIP · Personalizado</p>
+        <div style="display:flex;align-items:baseline;gap:0.3rem;margin-bottom:0.35rem">
+          <span style="font-family:var(--serif);font-size:2.6rem;font-weight:300;color:var(--text);line-height:1;letter-spacing:-0.02em">R$450</span>
+          <span style="color:var(--text-2);font-size:0.9rem">– R$1.000/mês</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-3);margin-bottom:1.75rem">Foco total no seu objetivo</p>
+
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.8rem;margin-bottom:2rem">
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            4 × / 6 × / 10 × aulas por mês
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Horários flexíveis na sua agenda
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Conteúdo 100% personalizado
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Business English · IELTS · Entrevistas
+          </li>
+          <li style="display:flex;align-items:flex-start;gap:0.65rem;font-size:0.88rem;color:var(--text-2)">
+            <span style="color:var(--navy);flex-shrink:0;margin-top:0.1rem">✓</span>
+            Inglês e Francês disponíveis
+          </li>
+        </ul>
+
+        <a href="https://wa.me/5512997151545?text=Ol%C3%A1%2C%20Ravel!%20Tenho%20interesse%20no%20plano%20VIP." target="_blank" style="
+          display:flex;align-items:center;justify-content:center;
+          background:transparent;color:var(--navy);
+          font-family:var(--sans);font-size:0.9rem;font-weight:600;
+          padding:0.9rem 1.5rem;border-radius:100px;text-decoration:none;
+          border:1.5px solid var(--border);
+          transition:border-color 0.2s,color 0.2s;letter-spacing:0.01em;
+        " onmouseover="this.style.borderColor='var(--navy)'"
+           onmouseout="this.style.borderColor='var(--border)'">
+          Falar com Ravel →
+        </a>
+      </div>
+
+    </div><!-- /grid -->
+
+    <!-- FAQ rápido -->
+    <div style="
+      max-width:640px;margin:3.5rem auto 0;
+      background:var(--white);border:0.5px solid var(--border-light);
+      border-radius:var(--radius);padding:2rem;
+    " class="fade-up">
+      <p style="font-family:var(--serif);font-size:1.2rem;font-weight:400;color:var(--text);margin-bottom:1.25rem;letter-spacing:-0.01em">Dúvidas frequentes</p>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div>
+          <p style="font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:0.25rem">Quando recebo as lições?</p>
+          <p style="font-size:0.84rem;color:var(--text-2);line-height:1.7">Todo dia às 7h da manhã direto no seu WhatsApp — incluindo sábados e domingos.</p>
+        </div>
+        <div style="border-top:0.5px solid var(--border-light);padding-top:1rem">
+          <p style="font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:0.25rem">Preciso ser iniciante?</p>
+          <p style="font-size:0.84rem;color:var(--text-2);line-height:1.7">Não. O currículo cobre A1 a C1 e se adapta ao seu nível após o diagnóstico inicial.</p>
+        </div>
+        <div style="border-top:0.5px solid var(--border-light);padding-top:1rem">
+          <p style="font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:0.25rem">Posso cancelar?</p>
+          <p style="font-size:0.84rem;color:var(--text-2);line-height:1.7">Sim, a qualquer momento sem multa. A assinatura é mensal e renovada automaticamente.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
 
 <!-- CONTACT -->
 <section id="contact">
