@@ -13,6 +13,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EduPrompt — Grammar Analyser & Teleprompter</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>"/>
+  <!-- PWA -->
+  <link rel="manifest" href="/tools/manifest.json">
+  <meta name="theme-color" content="#0F2545">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EduPrompt">
+  <link rel="apple-touch-icon" href="/tools/icons/icon-192.png">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
 
@@ -198,6 +206,36 @@
       align-items:center;justify-content:center;
       display:none;
       font-size:5rem;font-weight:700;color:#7eb8f7;
+    }
+
+    /* ─── MOBILE ─── */
+    @media (max-width:520px){
+      body{padding-top:44px;}
+      #ep-header{height:44px;padding:0 14px;}
+      #analyser,#prompter{top:44px;}
+      .ep-back{font-size:.65rem;}
+      .ep-brand{font-size:.76rem;}
+      .ep-pro{padding:3px 9px;font-size:.64rem;}
+
+      #setup{gap:10px;padding:0 14px;}
+      #setup h1{font-size:.92rem;}
+      textarea{height:145px;font-size:.88rem;}
+      .btn-primary,.btn-secondary{padding:11px 18px;}
+
+      #filter-bar{padding:7px 12px;gap:5px;}
+      .filter-btn{padding:5px 9px;font-size:.66rem;}
+      .row-label{min-width:36px;font-size:.58rem;}
+      .row-legend{display:none;}
+
+      #counter-bar{padding:4px 12px;gap:6px;font-size:.65rem;}
+      #text-analysis{padding:14px clamp(14px,5vw,40px);font-size:var(--afs,1.2rem);}
+
+      #textContent{padding:0 14px;}
+      #prompt-controls{gap:8px;padding:10px 12px;}
+      #prompt-controls .btn-primary{padding:12px 22px;font-size:.9rem;}
+      #prompt-controls .btn-secondary{padding:12px 18px;}
+      #speedSlider{width:80px;}
+      .hint{display:none;}
     }
   </style>
 </head>
@@ -841,6 +879,13 @@ document.head.appendChild(cdStyle);
 //  INIT — restore saved state
 // ═══════════════════════════════════════════════
 restoreLS();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/tools/service-worker.js').catch(() => {});
+    });
+  }
 </script>
 </body>
 </html>
