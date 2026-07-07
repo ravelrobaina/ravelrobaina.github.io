@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduPrompt — Grammar Analyser & Teleprompter</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    /* ─── HEADER (always visible) ─── */
+    #ep-header{
+      position:fixed;top:0;left:0;right:0;height:48px;
+      background:#070707;border-bottom:1px solid #1a1a1a;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 20px;z-index:300;flex-shrink:0;
+    }
+    .ep-back{font-size:.74rem;color:#444;text-decoration:none;transition:color .15s;white-space:nowrap;}
+    .ep-back:hover{color:#888;}
+    .ep-brand{
+      position:absolute;left:50%;transform:translateX(-50%);
+      font-size:.82rem;font-weight:700;color:#d0d0d0;letter-spacing:.06em;white-space:nowrap;
+    }
+    .ep-brand b{color:#7eb8f7;}
+    .ep-pro{
+      font-size:.72rem;color:#7eb8f7;text-decoration:none;font-weight:600;
+      border:1px solid #1e3355;border-radius:20px;padding:4px 12px;transition:all .15s;
+      white-space:nowrap;
+    }
+    .ep-pro:hover{background:#142340;color:#a2ccff;}
+
+    /* ─── BODY ─── */
+    body{
+      font-family:'Segoe UI',system-ui,sans-serif;
+      background:#0d0d0d;color:#f0f0f0;
+      height:100vh;overflow:hidden;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding-top:48px;
+    }
+
+    /* ─── SETUP ─── */
+    #setup{display:flex;flex-direction:column;gap:14px;width:100%;max-width:660px;padding:0 20px;}
+    #setup h1{font-size:1.1rem;font-weight:600;color:#b0b0b0;letter-spacing:.01em;}
+    #setup h1 strong{color:#7eb8f7;}
+    textarea{
+      width:100%;height:200px;
+      background:#141414;border:1px solid #252525;border-radius:10px;
+      color:#f0f0f0;font-size:.95rem;padding:14px;resize:vertical;outline:none;
+      font-family:inherit;line-height:1.6;
+    }
+    textarea:focus{border-color:#383838;}
+    .setup-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .setup-row label{font-size:.82rem;color:#666;white-space:nowrap;}
+    input[type=range]{
+      -webkit-appearance:none;height:4px;
+      background:#2a2a2a;border-radius:2px;outline:none;cursor:pointer;
+    }
+    input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;width:14px;height:14px;
+      border-radius:50%;background:#7eb8f7;cursor:pointer;
+    }
+    .btn-primary{
+      cursor:pointer;border:none;border-radius:8px;
+      font-size:.88rem;font-weight:600;padding:9px 20px;
+      background:#7eb8f7;color:#0d0d0d;transition:background .15s;
+    }
+    .btn-primary:hover{background:#a2ccff;}
+    .btn-primary:disabled{background:#1a1a1a;color:#3a3a3a;cursor:default;}
+    .btn-secondary{
+      cursor:pointer;border:1px solid #282828;border-radius:8px;
+      font-size:.88rem;font-weight:600;padding:9px 20px;
+      background:#181818;color:#777;transition:all .15s;
+    }
+    .btn-secondary:hover{background:#1e1e1e;color:#bbb;border-color:#404040;}
+    .btn-ghost{
+      cursor:pointer;background:transparent;border:none;
+      color:#3a3a3a;font-size:.78rem;text-decoration:underline;padding:4px 8px;
+    }
+    .btn-ghost:hover{color:#777;}
+
+    /* ─── ANALYSER ─── */
+    #analyser{
+      display:none;flex-direction:column;
+      position:fixed;top:48px;left:0;right:0;bottom:0;
+      background:#0d0d0d;
+    }
+    #filter-bar{
+      padding:10px 16px;display:flex;flex-direction:column;gap:7px;
+      border-bottom:1px solid #181818;background:#0b0b0b;flex-shrink:0;
+    }
+    .filter-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .row-label{
+      font-size:.63rem;color:#333;text-transform:uppercase;
+      letter-spacing:.08em;min-width:50px;flex-shrink:0;
+    }
+    .row-legend{font-size:.6rem;color:#282828;margin-left:auto;white-space:nowrap;flex-shrink:0;}
+    .filter-btn{
+      cursor:pointer;border:1.5px solid #202020;border-radius:20px;
+      font-size:.72rem;font-weight:600;padding:5px 13px;
+      background:#111;color:#484848;transition:all .12s;white-space:nowrap;
+    }
+    .filter-btn:hover{color:#999;border-color:#333;}
+    .filter-btn.on{color:#0d0d0d;}
+
+    #counter-bar{
+      display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+      padding:5px 16px;min-height:25px;
+      background:#090909;border-bottom:1px solid #141414;
+      font-size:.7rem;flex-shrink:0;
+    }
+    .cnt{display:flex;align-items:center;gap:5px;}
+    .cnt-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+    #text-analysis{
+      flex:1;overflow-y:auto;
+      padding:28px clamp(20px,8vw,100px);
+      font-size:var(--afs,1.4rem);line-height:2.2;color:#ccc;
+    }
+    .para{margin-bottom:1.2em;}
+    .tok{border-radius:3px;padding:1px 2px;display:inline;transition:background .07s;}
+    .tok[data-w]{cursor:pointer;}
+    .tok[data-w]:hover{outline:1px solid #2a2a2a;}
+
+    #analysis-bottom{
+      display:flex;align-items:center;gap:10px;justify-content:flex-end;
+      padding:9px 16px;border-top:1px solid #181818;background:#0b0b0b;
+      flex-shrink:0;flex-wrap:wrap;
+    }
+
+    /* ─── TELEPROMPTER ─── */
+    #prompter{
+      display:none;flex-direction:column;
+      position:fixed;top:48px;left:0;right:0;bottom:0;
+      background:#0d0d0d;
+    }
+    #viewport{flex:1;position:relative;overflow:hidden;}
+    #textTrack{position:absolute;width:100%;will-change:transform;}
+    #textContent{
+      padding:0 clamp(24px,8vw,120px);
+      font-size:var(--pfs,2rem);line-height:1.9;color:#e8e8e8;
+    }
+    #textContent .para{margin-bottom:1.2em;}
+    #focusBand{
+      position:absolute;left:0;right:0;pointer-events:none;
+      height:calc(var(--pfs,2rem)*1.9 + 10px);top:38%;transform:translateY(-50%);
+      background:rgba(126,184,247,.025);
+      border-top:1px solid rgba(126,184,247,.1);
+      border-bottom:1px solid rgba(126,184,247,.1);
+    }
+    #mask{
+      position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(to bottom,#0d0d0d 0%,transparent 18%,transparent 66%,#0d0d0d 100%);
+    }
+    #start-hint{
+      position:absolute;inset:0;pointer-events:none;
+      display:flex;align-items:center;justify-content:center;
+      transition:opacity .4s;
+    }
+    #start-hint span{
+      font-size:.88rem;color:#7eb8f7;border:1px solid #1e3355;
+      border-radius:8px;padding:8px 20px;letter-spacing:.04em;opacity:.5;
+    }
+    #prompt-controls{
+      display:flex;align-items:center;gap:10px;
+      padding:9px 18px;background:#0b0b0b;border-top:1px solid #181818;
+      flex-wrap:wrap;justify-content:center;flex-shrink:0;
+    }
+    .speed-wrap{display:flex;align-items:center;gap:8px;}
+    .speed-wrap label{font-size:.75rem;color:#555;white-space:nowrap;}
+    #speedVal{font-size:.75rem;color:#7eb8f7;min-width:26px;}
+    #speedSlider{width:120px;}
+    .hint{font-size:.62rem;color:#282828;white-space:nowrap;}
+
+    /* ─── TOOLTIP ─── */
+    #ep-tooltip{
+      position:fixed;z-index:9999;
+      background:#111;border:1px solid #252525;border-radius:8px;
+      padding:9px 13px;pointer-events:none;
+      box-shadow:0 6px 24px rgba(0,0,0,.6);
+      max-width:230px;display:none;
+    }
+    #ep-tip-word{font-weight:700;color:#e8e8e8;font-size:.88rem;}
+    #ep-tip-tags{color:#555;font-size:.73rem;margin-top:3px;line-height:1.5;}
+
+    /* ─── COUNTDOWN ─── */
+    #ep-countdown{
+      position:fixed;inset:0;z-index:500;
+      background:rgba(0,0,0,.75);
+      align-items:center;justify-content:center;
+      display:none;
+      font-size:5rem;font-weight:700;color:#7eb8f7;
+    }
+  </style>
+</head>
+<body>
+
+<!-- PERSISTENT SITE HEADER -->
+<header id="ep-header">
+  <a class="ep-back" href="https://ravelrobaina.github.io">← Ravel Robaina</a>
+  <span class="ep-brand"><b>Edu</b>Prompt</span>
+  <a class="ep-pro" href="https://ravelrobaina.github.io/#planos">Aulas Pro →</a>
+</header>
+
+<!-- SETUP SCREEN -->
+<div id="setup">
+  <h1><strong>EduPrompt</strong> — Grammar Analyser &amp; Teleprompter</h1>
+  <textarea id="transcript" placeholder="Paste or type a text here to get started…"></textarea>
+  <div class="setup-row">
+    <label>Font: <span id="setupFontVal">28</span>px</label>
+    <input type="range" id="setupFontSlider" min="14" max="60" value="28" step="2" style="width:110px"/>
+  </div>
+  <div class="setup-row">
+    <button class="btn-primary"   id="goAnalyse"  disabled>Analyse →</button>
+    <button class="btn-secondary" id="goPrompter" disabled>Teleprompter →</button>
+  </div>
+</div>
+
+<!-- ANALYSER SCREEN -->
+<div id="analyser">
+  <div id="filter-bar">
+    <div class="filter-row">
+      <span class="row-label">Class</span>
+      <button class="filter-btn" data-f="verb"  data-type="class">Verbs</button>
+      <button class="filter-btn" data-f="noun"  data-type="class">Nouns</button>
+      <button class="filter-btn" data-f="adj"   data-type="class">Adjectives</button>
+      <button class="filter-btn" data-f="adv"   data-type="class">Adverbs</button>
+      <button class="filter-btn" data-f="modal" data-type="class">Modal verbs</button>
+      <span class="row-legend">Class → background · Tense → underline</span>
+    </div>
+    <div class="filter-row">
+      <span class="row-label">Tense</span>
+      <button class="filter-btn" data-f="past"    data-type="tense">Past ▬</button>
+      <button class="filter-btn" data-f="present" data-type="tense">Present ╌</button>
+      <button class="filter-btn" data-f="future"  data-type="tense">Future ⋯</button>
+      <button class="filter-btn" data-f="cond"    data-type="tense">Conditional ═</button>
+    </div>
+  </div>
+  <div id="counter-bar"></div>
+  <div id="text-analysis"></div>
+  <div id="analysis-bottom">
+    <button class="btn-secondary" id="analyseToPrompt">Teleprompter →</button>
+    <button class="btn-ghost"     id="analyseBack">← New text</button>
+  </div>
+</div>
+
+<!-- TELEPROMPTER SCREEN -->
+<div id="prompter">
+  <div id="viewport">
+    <div id="textTrack">
+      <div id="spacerTop"></div>
+      <div id="textContent"></div>
+      <div id="spacerBottom"></div>
+    </div>
+    <div id="focusBand"></div>
+    <div id="mask"></div>
+    <div id="start-hint"><span>Press ▶ Play or Space to start</span></div>
+  </div>
+  <div id="prompt-controls">
+    <button class="btn-secondary" id="rewindBtn">↩</button>
+    <button class="btn-primary"   id="playPauseBtn">▶ Play</button>
+    <div class="speed-wrap">
+      <label>Speed: <span id="speedVal">80</span></label>
+      <input type="range" id="speedSlider" min="10" max="400" value="80" step="5"/>
+    </div>
+    <span class="hint">Space pause · ↑↓ speed · R rewind</span>
+    <button class="btn-secondary" id="promptToAnalyse">Analyse →</button>
+    <button class="btn-ghost"     id="promptBack">← New text</button>
+  </div>
+</div>
+
+<!-- WORD TOOLTIP -->
+<div id="ep-tooltip">
+  <div id="ep-tip-word"></div>
+  <div id="ep-tip-tags"></div>
+</div>
+
+<!-- 3-2-1 COUNTDOWN OVERLAY -->
+<div id="ep-countdown"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  RULE-BASED TAGGER (no external dependencies)
+// ═══════════════════════════════════════════════
+
+const MODALS    = new Set(['can','could','will','would','shall','should','may','might','must','ought']);
+const FUTURE_W  = new Set(['will','shall']);
+const COND_W    = new Set(['would','could','might','should']);
+
+const IRREG_PAST = new Set([
+  'was','were','had','did','went','came','said','got','made','knew','saw','gave',
+  'found','told','thought','became','showed','heard','left','felt','put','brought',
+  'began','kept','held','stood','understood','spent','built','lost','sent','met',
+  'led','ran','fell','grew','drew','flew','threw','ate','wore','rode','rose',
+  'spoke','chose','drove','broke','forgot','hid','hit','let','set','cut','sat',
+  'slept','meant','dealt','bought','caught','fought','taught','sought','taken',
+  'written','spoken','given','driven','risen','fallen','chosen','broken','eaten',
+  'seen','been','done','gone','read','cost','hurt','paid','sold','woke','struck',
+  'stuck','swam','swore','swept','wept','won','wrote','bent','burnt','learnt',
+  'lent','dreamt','smelt','spelt','awoke','arose','bore','bit','bled','blew',
+  'burst','clung','dug','drank','froze','hung','lay','lit','rang','sang','sank',
+  'shook','shone','shot','shrunk','stole','stung','tore','told','wove'
+]);
+
+const COMMON_VERBS = new Set([
+  'be','have','do','say','go','get','make','know','think','see','come','want',
+  'look','use','find','give','tell','work','call','try','ask','need','feel',
+  'become','leave','put','mean','keep','let','begin','show','hear','play','run',
+  'move','live','believe','hold','bring','happen','write','provide','sit','stand',
+  'lose','pay','meet','include','continue','set','learn','change','lead',
+  'understand','watch','follow','stop','create','speak','read','spend','grow',
+  'open','walk','win','offer','remember','love','consider','appear','buy','wait',
+  'serve','die','send','expect','stay','fall','remain','prepare','eat','help',
+  'allow','take','turn','start','contain','seem','receive','return','exist',
+  'produce','study','cook','drink','sleep','wake','drive','swim','talk','listen',
+  'laugh','cry','sing','jump','push','pull','throw','catch','hit','enjoy','suggest',
+  'cause','support','affect','link','cut','heat','process','taste','add','avoid',
+  'describe','advise','recommend','explain','prevent','reduce','increase','improve',
+  'check','decide','discuss','mention','choose','prefer','control','manage',
+  'discover','develop','design','test','report','reveal','indicate','demonstrate',
+  'prove','confirm','warn','inform','answer','respond','reply','state','claim','argue'
+]);
+
+const PRES3RD = new Set([
+  'is','are','am','has','does',
+  'says','goes','gets','makes','knows','thinks','sees','comes','wants','looks',
+  'uses','finds','gives','tells','works','calls','tries','asks','needs','feels',
+  'seems','appears','contains','includes','provides','helps','sounds','means',
+  'takes','puts','keeps','shows','leads','becomes','leaves','brings','happens',
+  'stands','loses','pays','meets','runs','moves','lives','holds','wins','offers',
+  'stays','falls','remains','eats','allows','turns','starts','stops','speaks',
+  'reads','grows','opens','walks','serves','sends','expects','considers','loves',
+  'suggests','causes','links','adds','avoids','describes','prevents','increases',
+  'reduces','improves','decides','discusses','chooses','manages','discovers'
+]);
+
+const COMMON_ADJ = new Set([
+  'good','bad','big','small','large','little','long','short','high','low',
+  'new','old','young','first','last','great','few','more','most','other',
+  'same','different','important','possible','real','right','wrong','hard','easy',
+  'free','sure','true','false','full','empty','open','ready','able','likely',
+  'nice','fine','cool','hot','cold','warm','dark','light','bright','clean',
+  'happy','sad','angry','tired','sick','healthy','rich','poor','strong','weak',
+  'fast','slow','loud','quiet','soft','round','sharp','wide','narrow','thick',
+  'deep','heavy','fresh','dry','wet','natural','artificial','convenient',
+  'popular','common','main','average','normal','basic','simple','complex',
+  'clear','useful','interesting','amazing','terrible','wonderful','beautiful',
+  'delicious','tasty','unhealthy','sweet','salty','bitter','processed','linked',
+  'related','available','certain','specific','particular','recent','similar',
+  'various','several','obvious','regular','daily','weekly','global','local',
+  'national','standard','traditional','typical','special','entire','whole',
+  'individual','total','extra','quick','raw','wild','guilty','occasional',
+  'sensible','cheap','expensive','frequent','rare','current','previous','next',
+  'following','major','minor','general','direct','indirect','mental','physical',
+  'emotional','social','cultural','economic','political','digital','online'
+]);
+
+const COMMON_ADV = new Set([
+  'very','quite','really','just','also','often','always','never','sometimes',
+  'usually','probably','already','still','yet','soon','now','here','there',
+  'almost','even','ever','only','well','hard','fast','long','far','much',
+  'little','enough','too','rather','fairly','pretty','highly','deeply','clearly',
+  'quickly','slowly','easily','carefully','suddenly','recently','finally',
+  'actually','basically','mainly','mostly','especially','particularly',
+  'generally','certainly','definitely','possibly','perhaps','maybe','together',
+  'away','back','around','again','once','twice','instead','anyway','however',
+  'therefore','unfortunately','fortunately','surprisingly','apparently',
+  'obviously','simply','merely','hardly','barely','otherwise','elsewhere',
+  'somehow','somewhat','altogether','meanwhile','nowadays'
+]);
+
+const NOUN_SFXS = ['tion','sion','ment','ness','ity','ery','age','ance','ence',
+  'ship','hood','dom','ism','ist','ture','sure','ure'];
+
+const KEEP_LY_ADJ = new Set([
+  'friendly','lonely','lovely','likely','elderly','early','daily','weekly',
+  'monthly','yearly','hourly','timely','costly','deadly','lively','holy',
+  'jolly','ugly','silly','curly','oily','woolly','hilly','chilly','smelly','bully'
+]);
+
+function hasSfx(w, list) { return list.some(s => w.length > s.length + 2 && w.endsWith(s)); }
+
+function tagWord(word, prev, next) {
+  const tags = new Set();
+  const bare = word.toLowerCase().replace(/^[^a-z']+/i,'').replace(/[^a-z']+$/i,'');
+  if (!bare) { tags.add('Punct'); return tags; }
+
+  const p = (prev || '').toLowerCase().replace(/[^a-z]/g,'');
+  const n = (next || '').toLowerCase().replace(/[^a-z]/g,'');
+
+  // contractions: 'll, 'd, 've, 's
+  if (bare === "'ll" || bare.endsWith("'ll")) { tags.add('Verb'); tags.add('_future'); }
+  if (bare === "'d"  || bare.endsWith("'d"))  { tags.add('Verb'); tags.add('_cond'); }
+  if (bare === "'ve" || bare.endsWith("'ve")) { tags.add('Verb'); tags.add('PresentTense'); }
+  if (bare === "'re" || bare.endsWith("'re")) { tags.add('Verb'); tags.add('PresentTense'); }
+
+  // modals
+  if (MODALS.has(bare)) {
+    tags.add('Verb'); tags.add('Modal');
+    if (FUTURE_W.has(bare)) tags.add('_future');
+    if (COND_W.has(bare))   tags.add('_cond');
+  }
+
+  // "going to" → future; "gonna" → future
+  if ((bare === 'going' || bare === 'gonna') && n === 'to') tags.add('_future');
+  if (bare === 'gonna') tags.add('_future');
+
+  // "used to" → past habit
+  if (bare === 'used' && n === 'to') { tags.add('Verb'); tags.add('PastTense'); }
+
+  // BE forms
+  if (['am','is','are'].includes(bare)) { tags.add('Verb'); tags.add('PresentTense'); }
+  if (['was','were'].includes(bare))    { tags.add('Verb'); tags.add('PastTense'); }
+  if (bare === 'been')                  { tags.add('Verb'); }
+
+  // HAVE / HAS — present; "will have" → future perfect
+  if (['have','has'].includes(bare)) {
+    tags.add('Verb'); tags.add('PresentTense');
+    if (FUTURE_W.has(p) || p === "'ll") tags.add('_future');
+  }
+  if (bare === 'had')             { tags.add('Verb'); tags.add('PastTense'); }
+  if (['do','does'].includes(bare)) { tags.add('Verb'); tags.add('PresentTense'); }
+  if (bare === 'did')             { tags.add('Verb'); tags.add('PastTense'); }
+
+  // irregular past
+  if (IRREG_PAST.has(bare) && !MODALS.has(bare)) {
+    tags.add('Verb'); tags.add('PastTense');
+  }
+
+  // 3rd-person present
+  if (PRES3RD.has(bare)) { tags.add('Verb'); tags.add('PresentTense'); }
+
+  // base-form common verbs
+  if (COMMON_VERBS.has(bare) && !tags.has('PastTense')) {
+    tags.add('Verb');
+    if (!tags.has('PresentTense')) tags.add('PresentTense');
+  }
+
+  // -ing forms
+  if (bare.endsWith('ing') && bare.length > 5 && !tags.has('Verb')) tags.add('Verb');
+
+  // regular -ed past
+  if (bare.endsWith('ed') && bare.length > 4 && !tags.has('PastTense') && !MODALS.has(bare)) {
+    tags.add('Verb'); tags.add('PastTense');
+  }
+
+  // adverbs
+  if (bare.endsWith('ly') && bare.length > 4 && !KEEP_LY_ADJ.has(bare)) tags.add('Adverb');
+  if (COMMON_ADV.has(bare)) tags.add('Adverb');
+
+  // adjectives
+  if (COMMON_ADJ.has(bare)) tags.add('Adjective');
+
+  // noun suffixes
+  if (hasSfx(bare, NOUN_SFXS)) tags.add('Noun');
+
+  // proper noun (capitalized mid-sentence)
+  if (/^[A-Z]/.test(word) && prev !== null && prev !== '') tags.add('Noun');
+
+  // fallback
+  if (tags.size === 0) tags.add('Noun');
+
+  return tags;
+}
+
+function tokenize(text) {
+  const tokens = [];
+  text.split(/(\s+)/).forEach(p => {
+    if (/^\s+$/.test(p)) tokens.push({ text: p, space: true });
+    else if (p)          tokens.push({ text: p, space: false });
+  });
+  return tokens;
+}
+
+// ═══════════════════════════════════════════════
+//  FILTER CONFIG
+//  class filters  → background color
+//  tense filters  → border-bottom style (solid/dashed/dotted/double)
+// ═══════════════════════════════════════════════
+const FILTERS = {
+  verb:    { label:'Verbs',       color:'#7eb8f7', type:'class', test: t => t.has('Verb')         },
+  noun:    { label:'Nouns',       color:'#c084fc', type:'class', test: t => t.has('Noun')         },
+  adj:     { label:'Adjectives',  color:'#f472b6', type:'class', test: t => t.has('Adjective')    },
+  adv:     { label:'Adverbs',     color:'#2dd4bf', type:'class', test: t => t.has('Adverb')       },
+  modal:   { label:'Modal verbs', color:'#fb923c', type:'class', test: t => t.has('Modal')        },
+  past:    { label:'Past',        color:'#f59e0b', type:'tense', bStyle:'solid 2.5px',   test: t => t.has('PastTense')    },
+  present: { label:'Present',     color:'#a78bfa', type:'tense', bStyle:'dashed 2px',    test: t => t.has('PresentTense') },
+  future:  { label:'Future',      color:'#4ade80', type:'tense', bStyle:'dotted 3px',    test: t => t.has('_future')      },
+  cond:    { label:'Conditional', color:'#e879f9', type:'tense', bStyle:'double 3px',    test: t => t.has('_cond')        },
+};
+
+let activeFilters = new Set();
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function hexRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// Screen tracking — used for keyboard guard
+let currentScreen = 'setup';
+function show(id) {
+  currentScreen = id;
+  ['setup','analyser','prompter'].forEach(s =>
+    (document.getElementById(s).style.display = s === id ? 'flex' : 'none')
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  LOCAL STORAGE PERSISTENCE
+// ═══════════════════════════════════════════════
+function saveLS() {
+  try {
+    localStorage.setItem('ep_text',    ta.value);
+    localStorage.setItem('ep_font',    fontSlider.value);
+    localStorage.setItem('ep_speed',   String(pSpeed));
+    localStorage.setItem('ep_filters', JSON.stringify([...activeFilters]));
+  } catch(e) {}
+}
+
+function restoreLS() {
+  try {
+    const txt = localStorage.getItem('ep_text');
+    if (txt) { ta.value = txt; ta.dispatchEvent(new Event('input')); }
+
+    const fnt = localStorage.getItem('ep_font');
+    if (fnt) { fontSlider.value = fnt; fontValEl.textContent = fnt; }
+
+    const spd = localStorage.getItem('ep_speed');
+    if (spd) { pSpeed = +spd; speedSlider.value = pSpeed; speedValEl.textContent = pSpeed; }
+
+    const flt = localStorage.getItem('ep_filters');
+    if (flt) {
+      JSON.parse(flt).forEach(f => {
+        if (!FILTERS[f]) return;
+        activeFilters.add(f);
+        const btn = document.querySelector(`.filter-btn[data-f="${f}"]`);
+        if (btn) {
+          btn.classList.add('on');
+          btn.style.background  = FILTERS[f].color;
+          btn.style.borderColor = FILTERS[f].color;
+          btn.style.color       = '#0d0d0d';
+        }
+      });
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════
+//  SETUP
+// ═══════════════════════════════════════════════
+const ta         = document.getElementById('transcript');
+const fontSlider = document.getElementById('setupFontSlider');
+const fontValEl  = document.getElementById('setupFontVal');
+
+fontSlider.addEventListener('input', () => { fontValEl.textContent = fontSlider.value; saveLS(); });
+
+ta.addEventListener('input', () => {
+  const ok = ta.value.trim().length > 0;
+  document.getElementById('goAnalyse').disabled  = !ok;
+  document.getElementById('goPrompter').disabled = !ok;
+  saveLS();
+});
+
+document.getElementById('goAnalyse').addEventListener('click', () => {
+  document.documentElement.style.setProperty('--afs', fontSlider.value + 'px');
+  show('analyser');
+  buildAnalysis(ta.value.trim());
+});
+document.getElementById('goPrompter').addEventListener('click', launchPrompter);
+document.getElementById('analyseToPrompt').addEventListener('click', launchPrompter);
+document.getElementById('promptToAnalyse').addEventListener('click', () => {
+  pausePrompter();
+  document.documentElement.style.setProperty('--afs', fontSlider.value + 'px');
+  show('analyser');
+  buildAnalysis(ta.value.trim());
+});
+document.getElementById('analyseBack').addEventListener('click', () => {
+  activeFilters.clear();
+  document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('on'); b.style.cssText = ''; });
+  saveLS();
+  show('setup');
+});
+document.getElementById('promptBack').addEventListener('click', () => { pausePrompter(); show('setup'); });
+
+// ═══════════════════════════════════════════════
+//  ANALYSER — build + highlight
+// ═══════════════════════════════════════════════
+function buildAnalysis(text) {
+  const box = document.getElementById('text-analysis');
+  box.innerHTML = '';
+
+  text.split(/\n+/).forEach(paraText => {
+    if (!paraText.trim()) return;
+    const div = document.createElement('div');
+    div.className = 'para';
+
+    const rawToks = tokenize(paraText);
+    const wordToks = rawToks.filter(t => !t.space);
+    let wi = 0;
+
+    rawToks.forEach(tok => {
+      if (tok.space) { div.appendChild(document.createTextNode(tok.text)); return; }
+      const prev = wi > 0 ? wordToks[wi - 1].text : null;
+      const next = wi < wordToks.length - 1 ? wordToks[wi + 1].text : null;
+      const tags = tagWord(tok.text, prev, next);
+      const isPunct = tags.has('Punct') || /^[.,!?;:"''""\-–—…()\[\]]+$/.test(tok.text);
+      const span = document.createElement('span');
+      span.className = 'tok';
+      span.textContent = tok.text;
+      if (!isPunct) { span.dataset.w = '1'; span.dataset.t = [...tags].join(' '); }
+      div.appendChild(span);
+      wi++;
+    });
+
+    box.appendChild(div);
+  });
+
+  applyHighlights();
+}
+
+// filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  const f = btn.dataset.f;
+  btn.addEventListener('click', () => {
+    const c = FILTERS[f].color;
+    if (activeFilters.has(f)) {
+      activeFilters.delete(f); btn.classList.remove('on'); btn.style.cssText = '';
+    } else {
+      activeFilters.add(f); btn.classList.add('on');
+      btn.style.background = c; btn.style.borderColor = c; btn.style.color = '#0d0d0d';
+    }
+    applyHighlights(); saveLS();
+  });
+});
+
+function hitsFor(tagsStr) {
+  const set = new Set(tagsStr.split(' '));
+  return [...activeFilters].filter(f => FILTERS[f].test(set));
+}
+
+// class → background, tense → border-bottom (different dash styles)
+function applyHighlights() {
+  document.querySelectorAll('.tok[data-w]').forEach(span => {
+    const hits = hitsFor(span.dataset.t || '');
+    if (!hits.length) { span.style.cssText = ''; return; }
+
+    const classHit = hits.find(h => FILTERS[h].type === 'class');
+    const tenseHit = hits.find(h => FILTERS[h].type === 'tense');
+
+    let css = 'border-radius:3px;padding:1px 2px;';
+    if (classHit) css += `background:${hexRgba(FILTERS[classHit].color, .22)};`;
+    if (tenseHit) css += `border-bottom:${FILTERS[tenseHit].bStyle} ${FILTERS[tenseHit].color};`;
+    span.style.cssText = css;
+  });
+  updateCounter();
+}
+
+function updateCounter() {
+  const bar = document.getElementById('counter-bar');
+  if (!activeFilters.size) { bar.innerHTML = ''; return; }
+  const counts = {};
+  activeFilters.forEach(f => (counts[f] = 0));
+  document.querySelectorAll('.tok[data-w]').forEach(span =>
+    hitsFor(span.dataset.t || '').forEach(f => counts[f]++)
+  );
+  bar.innerHTML = [...activeFilters].map(f =>
+    `<span class="cnt">
+       <span class="cnt-dot" style="background:${FILTERS[f].color}"></span>
+       ${FILTERS[f].label}: <strong>${counts[f]}</strong>
+     </span>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  TOOLTIP — click any word to see its tags
+// ═══════════════════════════════════════════════
+const TAG_LABELS = {
+  Verb:'Verb', Noun:'Noun', Adjective:'Adjective', Adverb:'Adverb',
+  Modal:'Modal verb', PastTense:'Past tense', PresentTense:'Present tense',
+  _future:'Future', _cond:'Conditional', Punct:null
+};
+
+document.addEventListener('click', e => {
+  const tip = document.getElementById('ep-tooltip');
+  const tok = e.target.closest('.tok[data-w]');
+  if (!tok) { tip.style.display = 'none'; return; }
+
+  const tagList = (tok.dataset.t || '').split(' ')
+    .map(t => TAG_LABELS[t]).filter(Boolean);
+
+  document.getElementById('ep-tip-word').textContent = tok.textContent.trim();
+  document.getElementById('ep-tip-tags').textContent = tagList.join(' · ') || 'Word';
+
+  const rect = tok.getBoundingClientRect();
+  const left = Math.min(rect.left, window.innerWidth - 240);
+  const top  = rect.bottom + 8;
+  tip.style.cssText = `display:block;left:${left}px;top:${top}px;position:fixed;z-index:9999;`;
+});
+
+// ═══════════════════════════════════════════════
+//  TELEPROMPTER
+// ═══════════════════════════════════════════════
+const viewport    = document.getElementById('viewport');
+const textTrack   = document.getElementById('textTrack');
+const textContent = document.getElementById('textContent');
+const spacerTop   = document.getElementById('spacerTop');
+const spacerBot   = document.getElementById('spacerBottom');
+const playBtn     = document.getElementById('playPauseBtn');
+const speedSlider = document.getElementById('speedSlider');
+const speedValEl  = document.getElementById('speedVal');
+const startHint   = document.getElementById('start-hint');
+const cdOverlay   = document.getElementById('ep-countdown');
+
+let pSpeed=80, yPos=0, playing=false, raf=null, lastTs=null;
+let hasStarted=false, cdTimer=null;
+
+function launchPrompter() {
+  document.documentElement.style.setProperty('--pfs', fontSlider.value + 'px');
+  // always build analysis first (even if analyser wasn't visited)
+  buildAnalysis(ta.value.trim());
+  // clone tagged DOM into teleprompter — highlights come along
+  textContent.innerHTML = document.getElementById('text-analysis').innerHTML;
+  hasStarted = false;
+  playBtn.textContent = '▶ Play';
+  startHint.style.opacity = '1';
+  show('prompter');
+  requestAnimationFrame(() => requestAnimationFrame(initPrompter));
+}
+
+function initPrompter() {
+  const vh = viewport.clientHeight, fy = vh * .38;
+  spacerTop.style.height = fy + 'px';
+  spacerBot.style.height = (vh - fy) + 'px';
+  yPos = 0; lastTs = null; applyY();
+  // deliberately NOT auto-playing — user presses Play
+}
+
+function applyY() { textTrack.style.transform = `translateY(${yPos}px)`; }
+function maxScroll() { return textTrack.scrollHeight - viewport.clientHeight * .38; }
+
+function tickP(ts) {
+  if (lastTs !== null) {
+    yPos -= pSpeed * (ts - lastTs) / 1000;
+    if (yPos < -maxScroll()) { yPos = -maxScroll(); pausePrompter(); }
+    applyY();
+  }
+  lastTs = ts;
+  if (playing) raf = requestAnimationFrame(tickP);
+}
+
+function startCountdown(cb) {
+  if (cdTimer) return;
+  let n = 3;
+  const showN = () => {
+    cdOverlay.textContent = n;
+    cdOverlay.style.display = 'flex';
+    // restart animation each tick
+    cdOverlay.style.animation = 'none';
+    cdOverlay.offsetHeight; // reflow
+    cdOverlay.style.animation = 'ep-cd .5s ease-out';
+  };
+  showN();
+  cdTimer = setInterval(() => {
+    n--;
+    if (n > 0) { showN(); }
+    else {
+      clearInterval(cdTimer); cdTimer = null;
+      cdOverlay.style.display = 'none';
+      cb();
+    }
+  }, 900);
+}
+
+function playPrompter() {
+  if (playing) return;
+  playing = true; lastTs = null;
+  playBtn.textContent = '⏸ Pause';
+  startHint.style.opacity = '0';
+  raf = requestAnimationFrame(tickP);
+}
+
+function pausePrompter() {
+  playing = false;
+  if (raf)     cancelAnimationFrame(raf);
+  if (cdTimer) { clearInterval(cdTimer); cdTimer = null; cdOverlay.style.display = 'none'; }
+  playBtn.textContent = '▶ Play';
+}
+
+function handlePlayPause() {
+  if (playing) { pausePrompter(); return; }
+  if (!hasStarted) { hasStarted = true; startCountdown(playPrompter); }
+  else             { playPrompter(); }
+}
+
+function rewindPrompter() {
+  pausePrompter();
+  hasStarted = false;
+  yPos = 0; applyY();
+  startHint.style.opacity = '1';
+}
+
+function changeSpeed(d) {
+  pSpeed = Math.min(400, Math.max(10, pSpeed + d));
+  speedSlider.value = pSpeed; speedValEl.textContent = pSpeed; saveLS();
+}
+
+playBtn.addEventListener('click', handlePlayPause);
+document.getElementById('rewindBtn').addEventListener('click', rewindPrompter);
+speedSlider.addEventListener('input', () => {
+  pSpeed = +speedSlider.value; speedValEl.textContent = pSpeed; saveLS();
+});
+
+// keyboard guard uses currentScreen variable (not style.display)
+document.addEventListener('keydown', e => {
+  if (currentScreen !== 'prompter') return;
+  if (e.key === ' ')                                          { e.preventDefault(); handlePlayPause(); }
+  if (e.key === 'r' || e.key === 'R')                         rewindPrompter();
+  if (e.key === 'ArrowUp'   || e.key === '+' || e.key === '=') { e.preventDefault(); changeSpeed(10); }
+  if (e.key === 'ArrowDown' || e.key === '-' || e.key === '_') { e.preventDefault(); changeSpeed(-10); }
+});
+
+// countdown animation
+const cdStyle = document.createElement('style');
+cdStyle.textContent = '@keyframes ep-cd{from{opacity:0;transform:scale(1.4)}to{opacity:1;transform:scale(1)}}';
+document.head.appendChild(cdStyle);
+
+// ═══════════════════════════════════════════════
+//  INIT — restore saved state
+// ═══════════════════════════════════════════════
+restoreLS();
+</script>
+</body>
+</html>
