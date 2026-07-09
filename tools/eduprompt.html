@@ -208,6 +208,17 @@
       font-size:5rem;font-weight:700;color:#7eb8f7;
     }
 
+    /* ─── PROMPTER FILTER BAR ─── */
+    #prompter-filter-bar{
+      display:none;padding:7px 14px;
+      background:#080808;border-top:1px solid #181818;
+      flex-shrink:0;align-items:center;flex-wrap:wrap;gap:6px;
+    }
+    #prompter-filter-bar.pf-on{display:flex;}
+    .pf-sep{width:1px;height:16px;background:#222;flex-shrink:0;margin:0 4px;}
+    #toggleFilters{font-size:.72rem;padding:7px 12px;}
+    #toggleFilters.on{background:#1e3355;color:#7eb8f7;border-color:#2a4a7f;}
+
     /* ─── MOBILE ─── */
     @media (max-width:520px){
       body{padding-top:44px;}
@@ -302,6 +313,18 @@
     <div id="mask"></div>
     <div id="start-hint"><span>Press ▶ Play or Space to start</span></div>
   </div>
+  <div id="prompter-filter-bar">
+    <button class="filter-btn" data-f="verb"    data-type="class">Verbs</button>
+    <button class="filter-btn" data-f="noun"    data-type="class">Nouns</button>
+    <button class="filter-btn" data-f="adj"     data-type="class">Adj</button>
+    <button class="filter-btn" data-f="adv"     data-type="class">Adv</button>
+    <button class="filter-btn" data-f="modal"   data-type="class">Modal</button>
+    <span class="pf-sep"></span>
+    <button class="filter-btn" data-f="past"    data-type="tense">Past ▬</button>
+    <button class="filter-btn" data-f="present" data-type="tense">Present ╌</button>
+    <button class="filter-btn" data-f="future"  data-type="tense">Future ⋯</button>
+    <button class="filter-btn" data-f="cond"    data-type="tense">Cond ═</button>
+  </div>
   <div id="prompt-controls">
     <button class="btn-secondary" id="rewindBtn">↩</button>
     <button class="btn-primary"   id="playPauseBtn">▶ Play</button>
@@ -309,7 +332,8 @@
       <label>Speed: <span id="speedVal">80</span></label>
       <input type="range" id="speedSlider" min="10" max="400" value="80" step="5"/>
     </div>
-    <span class="hint">Space pause · ↑↓ speed · R rewind</span>
+    <span class="hint">Space · ↑↓ speed · R · H highlights</span>
+    <button class="btn-secondary" id="toggleFilters">◈</button>
     <button class="btn-secondary" id="promptToAnalyse">Analyse →</button>
     <button class="btn-ghost"     id="promptBack">← New text</button>
   </div>
@@ -581,17 +605,8 @@ function restoreLS() {
 
     const flt = localStorage.getItem('ep_filters');
     if (flt) {
-      JSON.parse(flt).forEach(f => {
-        if (!FILTERS[f]) return;
-        activeFilters.add(f);
-        const btn = document.querySelector(`.filter-btn[data-f="${f}"]`);
-        if (btn) {
-          btn.classList.add('on');
-          btn.style.background  = FILTERS[f].color;
-          btn.style.borderColor = FILTERS[f].color;
-          btn.style.color       = '#0d0d0d';
-        }
-      });
+      JSON.parse(flt).forEach(f => { if (FILTERS[f]) activeFilters.add(f); });
+      syncFilterBtns();
     }
   } catch(e) {}
 }
@@ -627,11 +642,17 @@ document.getElementById('promptToAnalyse').addEventListener('click', () => {
 });
 document.getElementById('analyseBack').addEventListener('click', () => {
   activeFilters.clear();
-  document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('on'); b.style.cssText = ''; });
+  syncFilterBtns();
   saveLS();
   show('setup');
 });
 document.getElementById('promptBack').addEventListener('click', () => { pausePrompter(); show('setup'); });
+
+document.getElementById('toggleFilters').addEventListener('click', () => {
+  const bar = document.getElementById('prompter-filter-bar');
+  const on  = bar.classList.toggle('pf-on');
+  document.getElementById('toggleFilters').classList.toggle('on', on);
+});
 
 // ═══════════════════════════════════════════════
 //  ANALYSER — build + highlight
@@ -669,20 +690,32 @@ function buildAnalysis(text) {
   applyHighlights();
 }
 
-// filter buttons
-document.querySelectorAll('.filter-btn').forEach(btn => {
+// filter buttons — event delegation covers both analyser bar and prompter bar
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn[data-f]');
+  if (!btn) return;
   const f = btn.dataset.f;
-  btn.addEventListener('click', () => {
+  if (!FILTERS[f]) return;
+  if (activeFilters.has(f)) activeFilters.delete(f);
+  else activeFilters.add(f);
+  syncFilterBtns();
+  applyHighlights();
+  saveLS();
+});
+
+function syncFilterBtns() {
+  document.querySelectorAll('.filter-btn[data-f]').forEach(btn => {
+    const f = btn.dataset.f;
+    if (!FILTERS[f]) return;
     const c = FILTERS[f].color;
     if (activeFilters.has(f)) {
-      activeFilters.delete(f); btn.classList.remove('on'); btn.style.cssText = '';
-    } else {
-      activeFilters.add(f); btn.classList.add('on');
+      btn.classList.add('on');
       btn.style.background = c; btn.style.borderColor = c; btn.style.color = '#0d0d0d';
+    } else {
+      btn.classList.remove('on'); btn.style.cssText = '';
     }
-    applyHighlights(); saveLS();
   });
-});
+}
 
 function hitsFor(tagsStr) {
   const set = new Set(tagsStr.split(' '));
@@ -711,7 +744,7 @@ function updateCounter() {
   if (!activeFilters.size) { bar.innerHTML = ''; return; }
   const counts = {};
   activeFilters.forEach(f => (counts[f] = 0));
-  document.querySelectorAll('.tok[data-w]').forEach(span =>
+  document.querySelectorAll('#text-analysis .tok[data-w]').forEach(span =>
     hitsFor(span.dataset.t || '').forEach(f => counts[f]++)
   );
   bar.innerHTML = [...activeFilters].map(f =>
@@ -866,6 +899,11 @@ document.addEventListener('keydown', e => {
   if (currentScreen !== 'prompter') return;
   if (e.key === ' ')                                          { e.preventDefault(); handlePlayPause(); }
   if (e.key === 'r' || e.key === 'R')                         rewindPrompter();
+  if (e.key === 'h' || e.key === 'H') {
+    const bar = document.getElementById('prompter-filter-bar');
+    const on  = bar.classList.toggle('pf-on');
+    document.getElementById('toggleFilters').classList.toggle('on', on);
+  }
   if (e.key === 'ArrowUp'   || e.key === '+' || e.key === '=') { e.preventDefault(); changeSpeed(10); }
   if (e.key === 'ArrowDown' || e.key === '-' || e.key === '_') { e.preventDefault(); changeSpeed(-10); }
 });
